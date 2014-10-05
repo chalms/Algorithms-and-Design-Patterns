@@ -2,6 +2,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MapReduce {
+	
+	// UNFINISHED example of using the map reduce function to aggregate document information 
+	
 	public class NameValuePair {
 		public String name; 
 		public String value; 

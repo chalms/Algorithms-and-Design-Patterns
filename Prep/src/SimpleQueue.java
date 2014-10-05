@@ -8,13 +8,16 @@ public class SimpleQueue <T> {
 	}
 	Node <T> first = null;  
 	Node <T> last = null; 
+	int size = 0; 
 	
 	public SimpleQueue () {
 		last = new Node <T> (); 
 		first = last; 
 		// TODO Auto-generated constructor stub
 	}
-	
+	public int size() {
+		return size; 
+	}
 	public Node <T> getLast() {
 		return last; 
 	}
@@ -29,6 +32,7 @@ public class SimpleQueue <T> {
 			returnData = first.data; 
 			first = first.next; 
 		}
+		size--; 
 		return returnData; 
 	}
 	
@@ -51,6 +55,7 @@ public class SimpleQueue <T> {
 			before = interest; 
 			interest = interest.next; 
 		}
+		size--; 
 		return false;
 	}
 	
@@ -64,6 +69,7 @@ public class SimpleQueue <T> {
 		last.data = d; 
 		last.next = new Node <T> (); 
 		last = last.next; 
+		size++; 
 	}
 	
 	public String toString() {
