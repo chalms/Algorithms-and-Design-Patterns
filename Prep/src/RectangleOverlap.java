@@ -10,6 +10,7 @@ public class RectangleOverlap {
 	  int top;
 	  int left;
 	  int right;
+	  
 	  public Rect(int x1, int x2, int y1, int y2) {
 	    top = x1;
 	    bottom = x2;

@@ -1,3 +1,7 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -20,11 +24,11 @@ public class CipherBlockChain {
 	private static Integer bitLength = null;
 	private static String plainText = null;
 
-	class KeyAndIv {
+	static class KeyAndIv {
 		SecureRandom randomizer; 
 		private byte[] secretKey; 
 		private byte[] initVector;
-		private SecretKeySpec key;
+		private SecretKeySpec key; 
 		
 		KeyAndIv(int size) {
 			secretKey = new byte[size/8];
@@ -34,6 +38,7 @@ public class CipherBlockChain {
 			randomizer = new SecureRandom(); 
 			randomizer.nextBytes(initVector);
 			randomizer.nextBytes(secretKey);
+			key = new SecretKeySpec(secretKey, "AES");
 		}
 		public byte[] getSecretKey() {
 		  return secretKey; 
@@ -44,9 +49,23 @@ public class CipherBlockChain {
 		public byte[] getInitVector() {
 		  return initVector; 
 		}
+		
+		public String keyString() {
+			return byteString(secretKey);
+		}
 	}
 	
-	private static KeyAndIv byteArrays = null;
+	
+	static public String byteString(byte[] bites) {
+		StringBuilder stringBuilder = new StringBuilder();
+	    for (byte b : bites) {
+	        stringBuilder.append(String.format("%02X ", b));
+	    }
+	    return stringBuilder.toString();
+	}
+	
+	private static KeyAndIv byteArrays = null; 
+	
 	
 	public static class Encryption {
 		private static byte[] encryptedData;
@@ -89,34 +108,44 @@ public class CipherBlockChain {
 	}
 	
 	public static void testCipherBlockChain() {
-		StartCipherBlockChain("AES/CBC/NoPadding", "126", null);
+		StartCipherBlockChain("AES/CBC/PKCS5PADDING", "128", null);
 		System.out.println("Plain Text: "); 
 		System.out.println(plainText);
 		System.out.println("Encrypted: "); 
-		System.out.println(Encryption.getEncryptedStr());
+		System.out.println(byteString(Encryption.getEncryptedData()));
 		System.out.println("Decrypted: "); 
 		System.out.println(Decryption.getDecryptedStr()); 
 		System.out.println("Key: "); 
-		System.out.println(byteArrays.getKey().toString()); 
+		System.out.println(byteArrays.keyString()); 
 		System.out.println("IV: "); 
-		System.out.println(new String(byteArrays.getInitVector())); 
+		System.out.println(byteString(byteArrays.getInitVector())); 
 		System.out.println("Algorithm: "); 
 		System.out.println(CipherBlockChain.getCipher().getAlgorithm()); 
+		System.out.println("Blocks: "); 
+		System.out.println(CipherBlockChain.getCipher().getBlockSize()); 
 	}
 	
 	
 	// Test args: "AES/CBC/PKCS5PADDING", 128
-	public static void StartCipherBlockChain(String cipherType, String numberBits, String plainText) {
-
-		if (setUpCipher(cipherType, numberBits) == null) return; 
-		
-		if (plainText == null) plainText = getSampleText(); 
-        
+	public static void StartCipherBlockChain(String cipherType, String numberBits, String pText) {
 		bitLength = Integer.parseInt(numberBits); 
 		if (bitLength == null) {
 			System.out.println("Parse Number Bits Error!"); 
 			return; 
 		}
+		
+		byteArrays = new KeyAndIv(bitLength);
+		
+		byteArrays.setRandomData(); 
+		
+		if (pText == null) {
+			plainText = getSampleText(); 
+			if (plainText == null) return; 
+		} else {
+			plainText = pText; 
+		}
+		
+		if (setUpCipher(cipherType, numberBits) == null) return; 
 		
 		StackTraceElement[] s = runEncrypt() ; 
 		if (s == null) {
@@ -135,7 +164,7 @@ public class CipherBlockChain {
 	}
 	
 	public static Cipher buildCipher(String cipherType, String numberBits) throws NoSuchAlgorithmException, NoSuchPaddingException{
-		String cipherInstance = new String(cipherType + " (" + numberBits + ") "); 
+		String cipherInstance = new String(cipherType); 
 		Cipher cipher = Cipher.getInstance(cipherInstance);
 		return cipher; 
 	}
@@ -162,17 +191,31 @@ public class CipherBlockChain {
 	}
 	
 	public static String getSampleText() {
-		return "Birthday Song Lyrics By Two Chains"
-            + "She got a big booty so I call her Big Booty"
-			+ "Scrr..Scrr.. wrists moving, cooking, getting to it"
-			+ "I'm in the kitchen, yams everywhere"
-			+ "Just made a juug, I got bands everywhere"; 
+		String all = ""; 
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(new File("./src/message.txt")));
+			String in = null;
+			boolean firstLine = true;
+			while((in = reader.readLine()) != null) {
+				if(firstLine) { 
+					all = all + in; 
+					firstLine = false; 
+				} else {
+					break; 
+				}
+			}
+			reader.close();
+		} catch (IOException e) {
+			e.printStackTrace(); 
+			return null;
+		}
+		return all; 
 	}
 	
 	public static StackTraceElement[] runEncrypt() {
 		try {
 			Encryption.setEncrypted();
-			System.out.println(Encryption.encryptedData);
+			//System.out.println(Encryption.encryptedData);
 			return null;
 		} catch (IllegalBlockSizeException e) {
 			return e.getStackTrace();
@@ -190,7 +233,7 @@ public class CipherBlockChain {
 	public static StackTraceElement[] runDecrypt() {
 		try {
 			Decryption.setDecrypted();
-			System.out.println(Encryption.encryptedData);
+			//System.out.println(Encryption.encryptedData);
 			return null;
 		} catch (IllegalBlockSizeException e) {
 			return e.getStackTrace();

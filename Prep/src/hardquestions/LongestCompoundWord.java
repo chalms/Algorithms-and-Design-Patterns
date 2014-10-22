@@ -41,16 +41,23 @@ class MyQueue extends PriorityQueue <String> {
 } 
 
 	String longestCompound(String input) { 
+		
 		input.replaceAll(",", ""); 
+		
 		ArrayList <String> list = (ArrayList<String>) Arrays.asList(input.split("\\s+/")); 
+		
 		MyQueue queuer = new MyQueue(); 
-		for(String word : list) { 
-			queuer.offer(word); 
-		} 
+		
+		for(String word : list) queuer.offer(word); 
+		
 		while (!queuer.isEmpty()) {
+			
 			String start = queuer.poll(); 
+			
 			for (int i = 1; i < start.length(); i++) {
+				
 				if (queuer.queueMap.containsKey(i) && queuer.queueMap.containsKey(start.length()-i)) {
+				
 					if (queuer.wordsForLength.get(i).contains(start.substring(0, i)) && 
 							queuer.wordsForLength.get(start.length()-i).contains(start.substring(i, start.length()))) {
 						return start; 
@@ -58,6 +65,7 @@ class MyQueue extends PriorityQueue <String> {
 				}
 			}
 		}
+		
 		return null; 
 	} 
 

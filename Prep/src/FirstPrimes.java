@@ -2,10 +2,7 @@
 
 public class FirstPrimes {
 
-	// Write a method to return the first N prime integers
-    
-    
-    
+	// Write a method to return the first N prime integers    
     // Methods to test algorithm ----------------->
 	
 	public static String testArraysEqual(int[] primes, int[] result, String testName) {
